@@ -1,0 +1,13 @@
+{
+  "name": "stylus-eval",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "GPL-3.0",
+  "dependencies": {
+    "puppeteer-core": "^10.2.0"
+  },
+  "scripts": {
+    "start": "node index.js"
+  },
+  "private": true
+}
