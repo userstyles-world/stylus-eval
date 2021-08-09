@@ -51,7 +51,7 @@ if (!fs.existsSync(chromeExtensionDebugDir)) {
     console.error(`chrome extension debug dir not found: ${chromeExtensionDebugDir}`);
     process.exit(1);
 }
-const cssStyle = fs.readFileSync(path.join(__dirname, args[0]), 'utf8');
+const cssStyle = fs.readFileSync(path.resolve(args[0]), 'utf8');
 
 (async () => {
     const executablePath = await getChromePath();
