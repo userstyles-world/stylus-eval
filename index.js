@@ -45,6 +45,12 @@ async function openChromePopupPage(browser) {
 }
 
 const chromeExtensionDebugDir = path.join(__dirname, '../stylus/');
+// check if folder exist.
+if (!fs.existsSync(chromeExtensionDebugDir)) {
+    // if not, error.
+    console.error(`chrome extension debug dir not found: ${chromeExtensionDebugDir}`);
+    process.exit(1);
+}
 const cssStyle = fs.readFileSync(path.join(__dirname, args[0]), 'utf8');
 
 (async () => {
