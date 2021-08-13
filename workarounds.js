@@ -29,7 +29,7 @@ async function githubRedirect(page) {
      console.log(`Checking ${page.url()}`);
     if (page.url() === 'https://twitter.com/') {
         // Fox is always good!
-        await page.goto('https://twitter.com/FreeplayG/');
+        await page.goto('https://twitter.com/joinmastodon/');
         await page.waitForSelector('div[data-testid="UserProfileHeader_Items"]');
     }
 }
