@@ -4,6 +4,7 @@ const puppeteer = require('puppeteer-core');
 const {exec} = require('child_process');
 const path = require('path');
 const fs = require('fs');
+const {checkForWorkarounds} = require('./workarounds');
 
 const args = process.argv.slice(2);
 
@@ -78,18 +79,25 @@ const cssStyle = fs.readFileSync(path.resolve(args[0]), 'utf8');
         ],
     });
     const stylusExt = await openChromePopupPage(browser);
+
     stylusExt.evaluate(async (style) => {
+        // @ts-ignore
         editor.getEditors()[0].setValue(style);
         const nameField = document.querySelector('#basic-info #name');
+        // @ts-ignore
         nameField.value = 'preview-style';
+        // @ts-ignore
         editor.updateName(true);
 
         // save
+        // @ts-ignore
         await editor.save();
     }, cssStyle);
 
     const page = await browser.newPage();
     await page.goto(args[1]);
+
+    await checkForWorkarounds(page);
 
     await page.screenshot({path: 'output.png'});
 
