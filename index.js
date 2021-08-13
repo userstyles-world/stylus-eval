@@ -10,7 +10,6 @@ const args = process.argv.slice(2);
 
 async function getChromePath() {
     let path;
-
     try {
         path = await linuxAppPath('google-chrome');
     } catch (ball) {
@@ -19,6 +18,9 @@ async function getChromePath() {
     return path;
 }
 
+/**
+ * @param {string} app
+ */
 function linuxAppPath(app) {
     return new Promise((resolve, reject) => {
         exec(`which ${app}`, (err, result) => {
@@ -62,7 +64,9 @@ const cssStyle = fs.readFileSync(path.resolve(args[0]), 'utf8');
         executablePath,
         headless: false,
         
-        // slowMo: 250,
+        // Optimized for speed.
+        // Really should have some more insight into chromiums flags.
+        // But this is a good start.
         args: [
             `--disable-extensions-except=${chromeExtensionDebugDir}`,
             `--load-extension=${chromeExtensionDebugDir}`,
@@ -73,14 +77,14 @@ const cssStyle = fs.readFileSync(path.resolve(args[0]), 'utf8');
             '--disable-accelerated-2d-canvas',
             '--no-first-run',
             '--no-zygote',
-            '--single-process', // <- this one doesn't works in Windows
+            '--single-process',
             '--disable-gpu',
             `--enable-features=enable-quic,enable-zero-copy`,
         ],
     });
     const stylusExt = await openChromePopupPage(browser);
 
-    stylusExt.evaluate(async (style) => {
+    stylusExt.evaluate(async (/** @type {string} */ style) => {
         // @ts-ignore
         editor.getEditors()[0].setValue(style);
         const nameField = document.querySelector('#basic-info #name');

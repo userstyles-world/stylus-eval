@@ -7,7 +7,19 @@ const workArounds = [
     [/youtube\.com/, youtubePolicy],
     [/roblox.com/, robloxRedirect],
     [/twitter\.com/, twitterRedirect],
+    [/github\.com/, githubRedirect],
 ];
+
+/**
+ * @param {puppeteer.Page} page
+ * @returns {Promise<void>}
+ */
+async function githubRedirect(page) {
+    console.log(`Checking ${page.url()}`);
+    if (page.url() === 'https://github.com/') {
+        await page.goto('https://github.com/userstyles-world/userstyles.world');
+    }
+}
 
 /**
  * @param {puppeteer.Page} page
