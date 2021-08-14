@@ -1,12 +1,17 @@
-// @ts-check
+//@ts-check
 
-const puppeteer = require('puppeteer-core');
+/** @type {import('puppeteer-core').Puppeteer} */
+const puppeteer = require('puppeteer-extra');
 const {exec} = require('child_process');
 const path = require('path');
 const fs = require('fs');
 const {checkForWorkarounds} = require('./workarounds');
 
 const args = process.argv.slice(2);
+
+// add stealth plugin and use defaults (all evasion techniques)
+const StealthPlugin = require('puppeteer-extra-plugin-stealth');
+puppeteer.use(StealthPlugin())
 
 async function getChromePath() {
     let path;
@@ -34,10 +39,10 @@ function linuxAppPath(app) {
 }
 
 /**
- * @param {puppeteer.Browser} browser
+ * @param {import('puppeteer').Browser} browser
  */
 async function openChromePopupPage(browser) {
-    const backgroundTarget = browser.targets().find((t) => 'background_page' === t.type());
+    const backgroundTarget = (await browser.targets()).find((t) => 'background_page' === t.type());
     const backgroundPage = await backgroundTarget.page();
 
     const popupURL = backgroundPage.url().replace('/_generated_background_page.html', '/edit.html');
@@ -99,7 +104,7 @@ const cssStyle = fs.readFileSync(path.resolve(args[0]), 'utf8');
     }, cssStyle);
 
     const page = await browser.newPage();
-    await page.goto(args[1]);
+    await page.goto(args[1], {waitUntil: 'domcontentloaded'});
 
     await checkForWorkarounds(page);
 

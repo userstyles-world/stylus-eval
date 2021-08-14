@@ -15,9 +15,9 @@ const workArounds = [
  * @returns {Promise<void>}
  */
 async function githubRedirect(page) {
-    console.log(`Checking ${page.url()}`);
+    console.log(`Applying github redirect workaround for ${page.url()}`);
     if (page.url() === 'https://github.com/') {
-        await page.goto('https://github.com/userstyles-world/userstyles.world');
+        await page.goto('https://github.com/userstyles-world/userstyles.world', {waitUntil: 'domcontentloaded'});
     }
 }
 
@@ -25,12 +25,11 @@ async function githubRedirect(page) {
  * @param {puppeteer.Page} page
  * @returns {Promise<void>}
  */
- async function twitterRedirect(page) {
-     console.log(`Checking ${page.url()}`);
+async function twitterRedirect(page) {
+    console.log(`Applying twitter redirect for ${page.url()}`);
     if (page.url() === 'https://twitter.com/') {
         // Fox is always good!
-        await page.goto('https://twitter.com/joinmastodon/');
-        await page.waitForSelector('div[data-testid="UserProfileHeader_Items"]');
+        await page.goto('https://twitter.com/joinmastodon/', {waitUntil: 'domcontentloaded'});
     }
 }
 
@@ -39,7 +38,7 @@ async function githubRedirect(page) {
  * @returns {Promise<void>}
  */
 async function robloxRedirect(page) {
-    console.log(`Checking ${page.url()}`);
+    console.log(`Applying roblox redirect for ${page.url()}`);
     if (page.url() === 'https://www.roblox.com/') {
         await page.goto('https://www.roblox.com/discover#/', {waitUntil: "networkidle0"});
     }
@@ -53,7 +52,7 @@ async function robloxRedirect(page) {
  * @returns {Promise<void>}
  */
 async function googlePolicy(page) {
-    console.log(`Checking ${page.url()}`);
+    console.log(`Applying google policy workaround on: "${page.url()}"`);
     // Click button img + div + div > :last-child
     await page.click('img + div + div > :last-child');
 }
@@ -63,7 +62,7 @@ async function googlePolicy(page) {
  * @returns {Promise<void>}
  */
 async function youtubePolicy(page) {
-    console.log(`Checking ${page.url()}`);
+    console.log(`Applying youtube workaround on: "${page.url()}"`);
     // Click button .buttons.ytd-consent-bump-v2-lightbox > :last-child [role="button"]
     await page.click('.buttons.ytd-consent-bump-v2-lightbox > :last-child [role="button"]');
     // This is some custom button so it might take a bit of time to dissapear.
@@ -75,7 +74,7 @@ async function youtubePolicy(page) {
  * @returns {(page: puppeteer.Page) => Promise<void>}
  */
 function matchPage(url) {
-    console.log(`Checking ${url}`);
+    console.log(`Checking "${url}"`);
     for (let i = 0; i < workArounds.length; i++) {
         if (workArounds[i][0].test(url)) {
             return workArounds[i][1];
@@ -83,6 +82,11 @@ function matchPage(url) {
     }
     return null;
 }
+
+const cloudflareTitles = [
+    'Please Wait... | Cloudflare',
+    'Just a moment...',
+];
 
 /**
  * @param {puppeteer.Page} page
@@ -100,8 +104,17 @@ async function checkForWorkarounds(page) {
     if (workAround) {
         await workAround(page);
     }
+    // Check the title against the common cloudflare title.
+    const pageTitle = await page.title();
+    console.log(`Checking Title "${pageTitle}"`);
+
+    if (cloudflareTitles.includes(pageTitle)) {
+        console.log(`Cloudflare detected on "${domain}"`);
+        // Exit the program.
+        process.exit(31);
+    }
 }
 
 module.exports = {
-    checkForWorkarounds
+    checkForWorkarounds,
 };
